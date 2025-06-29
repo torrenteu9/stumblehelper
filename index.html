@@ -1,4 +1,3 @@
-este es mi dasboard, este es mi index
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,7 +9,6 @@ este es mi dasboard, este es mi index
     rel="stylesheet"
   />
   <style>
-    /* TODO: mantengo todo igual excepto añado scroll smooth y estilos dashboard button */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -18,7 +16,7 @@ este es mi dasboard, este es mi index
     }
 
     html {
-      scroll-behavior: smooth; /* scroll suave añadido */
+      scroll-behavior: smooth;
     }
 
     html, body {
@@ -312,7 +310,7 @@ este es mi dasboard, este es mi index
         <button onclick="showSection('inicio')" class="active">Inicio</button>
         <button onclick="showSection('ventajas')">Ventajas</button>
         <button onclick="showSection('comandos')">Comandos</button>
-        <button id="dashboard-btn" onclick="goToDashboard()">Dashboard</button>
+        <button id="dashboard-btn" onclick="showSection('dashboard')">Dashboard</button>
       </nav>
     </header>
 
@@ -346,69 +344,65 @@ este es mi dasboard, este es mi index
       </section>
 
       <section id="comandos">
-        <h2>💻 Lista de comandos</h2>
-        <h3>📌 Comandos de prefijo (.)</h3>
+        <h2>📘 Lista de comandos</h2>
+        <h3>Comandos de prefijo (.)</h3>
         <ul>
           <li><code>.vs @usuario(s)</code> – Añade rol configurado</li>
           <li><code>.vsrm @usuario(s)</code> – Quita rol configurado</li>
-          <li><code>.ban @usuario</code> – Banea usuario</li>
-          <li><code>.kick @usuario</code> – Expulsa usuario</li>
-          <li><code>.timeout @usuario (minutos)</code> – Tiempos fuera</li>
+          <li><code>.vsrall</code> – Quita el rol a todos los que lo tengan</li>
+          <li><code>.nick @usuario nuevoNombre</code> – Cambia apodo con prefijo y sufijo</li>
           <li><code>.avatar [@usuario]</code> – Muestra avatar</li>
-          <li><code>.banner [@usuario]</code> – Muestra banner</li>
-          <li><code>.purge [número]</code> – Borra mensajes</li>
+          <li><code>.banner [@usuario]</code> – Muestra banner (si tiene)</li>
+          <li><code>.ban @usuario [razón]</code> – Banea usuario</li>
+          <li><code>.kick @usuario [razón]</code> – Expulsa usuario</li>
+          <li><code>.timeout @usuario [duración]</code> – Silencia temporal</li>
+          <li><code>.purge [número | all]</code> – Borra mensajes</li>
         </ul>
-        <h3>🔹 Comandos slash (/)</h3>
+        <h3>Comandos Slash (/)</h3>
         <ul>
-          <li><code>/help</code> – Muestra ayuda</li>
-          <li><code>/set-role-vs</code> –  Configura rol para .vs</li>
+          <li><code>/set-role-vs</code> – Configura rol para .vs</li>
           <li><code>/set-nick</code> – Configura prefijo y sufijo</li>
-          <li><code>/serverinfo</code> – Información del Servidor</li>
+          <li><code>/serverinfo</code> – Información del servidor</li>
+          <li><code>/help</code> – Muestra esta lista</li>
         </ul>
       </section>
-    </main>
 
-    <footer>
-      © 2025 StumbleHelper – Developed By Hugo
-    </footer>
+      <section id="dashboard">
+        <h2>🛠 Dashboard</h2>
+        <p>
+          Aquí aparecerán los servidores donde tienes permisos de administrador.
+          <br />
+          (Funcionalidad pendiente de implementación)
+        </p>
+      </section>
+    </main>
   </div>
+
+  <footer>
+    © 2025 StumbleHelper · Creado con ❤️ por tu asistente
+  </footer>
 
   <script>
     function showSection(id) {
-      const sections = document.querySelectorAll("main section");
-      const buttons = document.querySelectorAll("nav button");
-      sections.forEach((sec) => {
+      // Quitar active a todos los botones y secciones
+      document.querySelectorAll("nav button").forEach((btn) => btn.classList.remove("active"));
+      document.querySelectorAll("main section").forEach((sec) => {
         sec.classList.remove("active");
-      });
-      buttons.forEach((btn) => {
-        btn.classList.remove("active");
+        sec.style.display = "none";
       });
 
-      const section = document.getElementById(id);
-      if (section) {
-        section.classList.add("active");
-      }
+      // Mostrar la sección seleccionada
+      document.getElementById(id).classList.add("active");
+      document.getElementById(id).style.display = "block";
 
-      // Set active button by matching onclick text
-      buttons.forEach((btn) => {
-        if (btn.getAttribute("onclick") === showSection('${id}')) {
-          btn.classList.add("active");
-        }
-      });
-
-      // Scroll smoothly to top main content
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Activar el botón correspondiente
+      event.target.classList.add("active");
     }
 
-    function goToDashboard() {
-      // Por ahora solo hace scroll al top y alerta
-      // Puedes cambiar a URL real, por ejemplo:
-      // window.location.href = "https://tu-dashboard-aqui.com";
-      alert(
-        "Aquí se abriría el dashboard para que puedas gestionar tus servidores con el bot."
-      );
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    // Inicializar sección visible
+    document.addEventListener("DOMContentLoaded", () => {
+      showSection("inicio");
+    });
   </script>
 </body>
 </html>
