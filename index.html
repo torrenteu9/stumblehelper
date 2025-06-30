@@ -3,286 +3,258 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StumbleHelper Web</title>
+  <title>StumbleHelper - Dashboard</title>
   <style>
-    /* Estilos base */
+    /* --- Estilos originales adaptados --- */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #121212;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: #eee;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      height: 100vh;
+      overflow-x: hidden;
     }
+
     header {
-      background: #222;
-      padding: 1rem 2rem;
       display: flex;
       justify-content: flex-end;
-      gap: 1rem;
-      position: relative;
-      z-index: 10;
+      padding: 20px 40px;
+      background-color: rgba(20, 20, 20, 0.85);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.7);
     }
-    button {
-      background: #444;
+
+    button#dashboard-btn,
+    button#logout-btn {
+      background: linear-gradient(45deg, #6a11cb, #2575fc);
       border: none;
-      border-radius: 5px;
-      color: #eee;
-      font-weight: 600;
-      padding: 0.5rem 1rem;
+      color: white;
+      font-weight: 700;
+      padding: 10px 18px;
+      margin-left: 15px;
+      border-radius: 25px;
       cursor: pointer;
-      position: relative;
+      transition: background 0.3s ease;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    button#dashboard-btn:hover,
+    button#logout-btn:hover {
+      background: linear-gradient(45deg, #2575fc, #6a11cb);
+    }
+
+    main {
+      padding: 120px 40px 40px;
+      max-width: 900px;
+      margin: auto;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeSlideIn 0.8s forwards;
+      animation-delay: 0.4s;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+      color: #00d2ff;
+      text-shadow: 0 0 8px #00d2ffaa;
+      user-select: none;
+    }
+
+    #welcome-text {
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+      color: #a0c8ffcc;
+      user-select: none;
+    }
+
+    #servers-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .server-card {
+      background: rgba(255 255 255 / 0.1);
+      border-radius: 14px;
+      padding: 18px 20px;
+      width: 100%;
+      max-width: 280px;
+      box-shadow: 0 0 10px #00d2ff88;
+      backdrop-filter: blur(8px);
+      cursor: default;
+      user-select: none;
+      transition: transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .server-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 20px #00d2ffcc;
+    }
+
+    .server-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 6px #00d2ffbb;
+      flex-shrink: 0;
+    }
+
+    .server-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #d0e7ff;
+      flex-grow: 1;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
     }
-    button:hover {
-      background: #666;
+
+    /* Animación especial para abrir dashboard */
+    @keyframes fadeSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    /* Animación especial para botón Dashboard */
-    #dashboard-btn::before {
-      content: '';
-      position: absolute;
+
+    /* Fondo animado suave detrás */
+    body::before {
+      content: "";
+      position: fixed;
       top: -50%;
       left: -50%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(45deg, #00ffea, #0066ff, #ff00cc, #ff6600);
-      background-size: 400% 400%;
-      animation: rainbow-slide 4s linear infinite;
-      filter: blur(8px);
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      background: radial-gradient(circle at center, #1f4068, #375a7f, #1f4068);
+      animation: backgroundPulse 12s ease-in-out infinite;
       z-index: -1;
-      border-radius: 5px;
+      filter: brightness(0.6);
     }
-    #dashboard-btn.active::before {
-      opacity: 1;
-    }
-    @keyframes rainbow-slide {
-      0% {
-        background-position: 0% 50%;
+
+    @keyframes backgroundPulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: brightness(0.6);
       }
-      100% {
-        background-position: 100% 50%;
+      50% {
+        transform: scale(1.05);
+        filter: brightness(0.75);
       }
-    }
-    main {
-      flex: 1;
-      padding: 2rem;
-      max-width: 900px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    #servers-list {
-      margin-top: 1rem;
-      background: #222;
-      padding: 1rem;
-      border-radius: 8px;
-    }
-    #servers-list ul {
-      list-style: none;
-      padding: 0;
-    }
-    #servers-list li {
-      padding: 0.5rem;
-      border-bottom: 1px solid #444;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    #servers-list li:last-child {
-      border-bottom: none;
-    }
-    .server-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .logout-btn {
-      background: #aa2222 !important;
     }
   </style>
 </head>
 <body>
   <header>
-    <button id="dashboard-btn">Dashboard</button>
-    <button id="logout-btn" class="logout-btn" style="display:none;">Logout</button>
+    <button id="dashboard-btn" aria-label="Dashboard">Dashboard</button>
+    <button id="logout-btn" aria-label="Logout">Logout</button>
   </header>
 
   <main>
-    <h1>Bienvenido a StumbleHelper Web</h1>
-
-    <div id="login-section">
-      <p>Para ver tus servidores donde está el bot, inicia sesión con Discord:</p>
-      <button id="login-btn">Login con Discord</button>
-    </div>
-
-    <div id="dashboard" style="display:none;">
-      <h2>Mis servidores con el bot</h2>
-      <div id="servers-list">
-        <ul id="servers-ul"></ul>
-      </div>
+    <h1>Bienvenido, <span id="username">Usuario</span></h1>
+    <p id="welcome-text">Aquí están los servidores donde tienes permisos y nuestro bot está presente:</p>
+    <div id="servers-container">
+      <!-- Servidores se cargarán aquí -->
     </div>
   </main>
 
   <script>
-    const clientId = '1382408855597617152';
-    const redirectUri = window.location.origin + window.location.pathname; // misma página
-    const scopes = ['identify', 'guilds'];
-    const loginBtn = document.getElementById('login-btn');
-    const dashboardBtn = document.getElementById('dashboard-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const loginSection = document.getElementById('login-section');
-    const dashboardSection = document.getElementById('dashboard');
-    const serversUl = document.getElementById('servers-ul');
+    // Obtener parámetros URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('user') || 'Usuario';
 
-    // Animación botón dashboard toggle
-    dashboardBtn.addEventListener('click', () => {
-      dashboardBtn.classList.toggle('active');
-      if (dashboardSection.style.display === 'none') {
-        dashboardSection.style.display = 'block';
-      } else {
-        dashboardSection.style.display = 'none';
-      }
+    // Mostrar nombre usuario
+    document.getElementById('username').textContent = username;
+
+    // Botón Dashboard: sólo animación al hacer click
+    document.getElementById('dashboard-btn').addEventListener('click', () => {
+      // Reproduce la animación fadeSlideIn al volver a mostrar el contenido
+      const main = document.querySelector('main');
+      main.style.opacity = 0;
+      main.style.transform = 'translateY(30px)';
+      main.offsetHeight; // reflow
+      main.style.animation = 'fadeSlideIn 0.8s forwards';
     });
 
-    // Función para construir URL OAuth2 Implicit Grant (response_type=token)
-    function getDiscordOAuthUrl() {
-      const base = 'https://discord.com/api/oauth2/authorize';
-      const params = new URLSearchParams({
-        client_id: clientId,
-        redirect_uri: redirectUri,
-        response_type: 'token',
-        scope: scopes.join(' ')
-      });
-      return `${base}?${params.toString()}`;
-    }
-
-    // Login click
-    loginBtn.addEventListener('click', () => {
-      window.location.href = getDiscordOAuthUrl();
+    // Botón Logout: redirige a página principal
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      window.location.href = '/'; // Cambia si tienes URL distinta para el logout
     });
 
-    // Logout click
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('discord_token');
-      localStorage.removeItem('discord_user');
-      dashboardSection.style.display = 'none';
-      loginSection.style.display = 'block';
-      logoutBtn.style.display = 'none';
-      serversUl.innerHTML = '';
-    });
-
-    // Extraer token del hash URL (Implicit Grant)
-    function getTokenFromHash() {
-      const hash = window.location.hash.substr(1);
-      const params = new URLSearchParams(hash);
-      return params.get('access_token');
-    }
-
-    // Obtener info usuario con token
-    async function fetchUserInfo(token) {
-      const res = await fetch('https://discord.com/api/users/@me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('No se pudo obtener info de usuario');
-      return await res.json();
-    }
-
-    // Obtener servidores donde está el bot con token
-    async function fetchUserGuilds(token) {
-      const res = await fetch('https://discord.com/api/users/@me/guilds', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('No se pudo obtener servidores');
-      const guilds = await res.json();
-
-      // Filtrar guilds donde esté el bot:  
-      // Nota: La API no indica si el bot está en el guild directamente,
-      // pero si el usuario tiene permisos y el bot está, se verá aquí.
-      // Por ahora mostramos todos.
-      return guilds;
-    }
-
-    // Guardar token en backend
-    async function sendTokenToServer(token) {
+    // Función para obtener guilds con el token guardado
+    async function fetchUserGuilds() {
       try {
-        await fetch('/save-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
-        });
-        console.log('Token enviado al servidor');
+        // Pedir servidores al backend
+        const res = await fetch('/api/user-guilds', { credentials: 'include' });
+        if (!res.ok) throw new Error('No autorizado o error al obtener guilds');
+        const guilds = await res.json();
+        return guilds;
       } catch (e) {
-        console.warn('Error enviando token al servidor:', e);
+        console.error(e);
+        return [];
       }
     }
 
-    async function main() {
-      let token = localStorage.getItem('discord_token');
-      if (!token) {
-        // Chequear si el token está en la URL (hash)
-        token = getTokenFromHash();
-        if (token) {
-          // Guardar token en localStorage para sesiones futuras
-          localStorage.setItem('discord_token', token);
-          // Limpiar hash para evitar mostrar token en URL
-          history.replaceState(null, '', window.location.pathname);
-          // Enviar token al backend
-          sendTokenToServer(token);
-        }
-      }
+    // Función para crear la card de cada servidor
+    function createServerCard(guild) {
+      const card = document.createElement('div');
+      card.className = 'server-card';
 
-      if (token) {
-        try {
-          const user = await fetchUserInfo(token);
-          localStorage.setItem('discord_user', JSON.stringify(user));
+      const icon = document.createElement('img');
+      icon.className = 'server-icon';
 
-          loginSection.style.display = 'none';
-          dashboardSection.style.display = 'block';
-          logoutBtn.style.display = 'inline-block';
-
-          const guilds = await fetchUserGuilds(token);
-
-          // Mostrar lista de servidores
-          serversUl.innerHTML = '';
-          if (guilds.length === 0) {
-            serversUl.innerHTML = '<li>No tienes servidores visibles con el bot.</li>';
-          } else {
-            guilds.forEach(guild => {
-              const iconUrl = guild.icon
-                ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-                : 'https://via.placeholder.com/32?text=🎮';
-              const li = document.createElement('li');
-              li.innerHTML = `
-                <img src="${iconUrl}" alt="Icono" class="server-icon" />
-                <span>${guild.name}</span>
-              `;
-              serversUl.appendChild(li);
-            });
-          }
-        } catch (e) {
-          console.error(e);
-          // Token inválido, borrar y mostrar login
-          localStorage.removeItem('discord_token');
-          localStorage.removeItem('discord_user');
-          loginSection.style.display = 'block';
-          dashboardSection.style.display = 'none';
-          logoutBtn.style.display = 'none';
-        }
+      if (guild.icon) {
+        icon.src = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
       } else {
-        loginSection.style.display = 'block';
-        dashboardSection.style.display = 'none';
-        logoutBtn.style.display = 'none';
+        icon.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
       }
+      icon.alt = `${guild.name} icon`;
+
+      const name = document.createElement('div');
+      name.className = 'server-name';
+      name.textContent = guild.name;
+
+      card.appendChild(icon);
+      card.appendChild(name);
+      return card;
     }
 
-    // Ejecutar al cargar
-    main();
+    // Cargar y mostrar servidores
+    async function loadServers() {
+      const container = document.getElementById('servers-container');
+      container.innerHTML = '<p>Cargando servidores...</p>';
+
+      const guilds = await fetchUserGuilds();
+
+      if (!guilds.length) {
+        container.innerHTML = '<p>No se encontraron servidores donde el bot y tú estén presentes.</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      guilds.forEach(guild => {
+        const card = createServerCard(guild);
+        container.appendChild(card);
+      });
+    }
+
+    // Ejecutar carga al inicio
+    loadServers();
   </script>
 </body>
 </html>
