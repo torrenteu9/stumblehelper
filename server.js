@@ -1,14 +1,15 @@
 import express from 'express';
 import fetch from 'node-fetch'; // O en Node 18+ puedes usar fetch globalmente
+import { client } from './index.js'; // Asegúrate que exportas el cliente de Discord en tu index.js
 
 const app = express();
 
-// Middleware para parsear JSON en body
+// Middleware para parsear JSON
 app.use(express.json());
 
 // Ruta original /callback (OAuth2 Authorization Code Flow)
 app.get('/callback', async (req, res) => {
-  const code = req.query.code; // Aquí recibes el código que te envía Discord
+  const code = req.query.code;
 
   if (!code) {
     return res.status(400).send('No code provided');
@@ -35,23 +36,20 @@ app.get('/callback', async (req, res) => {
       return res.status(500).json({ error: 'Token exchange failed', data: tokenData });
     }
 
-    // Usas el token para pedir info de usuario:
     const userRes = await fetch('https://discord.com/api/users/@me', {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` }, // Aquí va el token de acceso
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
     });
 
     const userData = await userRes.json();
 
-    // Ahora puedes usar userData (ejemplo: nombre, id, avatar)
     return res.redirect(`/dashboard.html?user=${encodeURIComponent(userData.username)}`);
-
   } catch (error) {
     console.error(error);
     return res.status(500).send('Error during Discord OAuth');
   }
 });
 
-// NUEVA RUTA para guardar token que manda frontend (Implicit Grant - token en hash)
+// Ruta para guardar el token enviado desde frontend (Implicit Grant Flow)
 app.post('/save-token', (req, res) => {
   const { token } = req.body;
 
@@ -59,15 +57,26 @@ app.post('/save-token', (req, res) => {
     return res.status(400).json({ error: 'No token provided' });
   }
 
-  // Aquí guardas el token en DB o donde quieras, o lo procesas
   console.log('Token recibido desde frontend:', token);
-
-  // Respuesta simple
   res.json({ success: true, message: 'Token recibido correctamente' });
+});
+
+// NUEVA RUTA: Retorna los servidores donde está el bot
+app.get('/bot-guilds', (req, res) => {
+  if (!client || !client.guilds) {
+    return res.status(500).json({ error: 'El cliente de Discord no está listo' });
+  }
+
+  const botGuilds = client.guilds.cache.map(g => ({
+    id: g.id,
+    name: g.name,
+    icon: g.icon,
+  }));
+
+  res.json(botGuilds);
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
