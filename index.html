@@ -323,8 +323,7 @@
           más. Ideal para servidores competitivos.
         </p>
         <a
-          href="https://discord.com/api/oauth2/authorize?client_id=1387430571096936498&permissions=8&scope=bot%20applications.commands%20identify%20guilds&redirect_uri=https%3A%2F%2Fstumblehelper.vercel.app%2F&response_type=code&prompt=consent
-"
+          href="https://discord.com/api/oauth2/authorize?client_id=1387430571096936498&permissions=8&scope=bot%20applications.commands%20identify%20guilds&redirect_uri=https%3A%2F%2Fstumblehelper.vercel.app%2F&response_type=code&prompt=consent"
           class="btn-invite"
           ><img
             src="https://cdn-icons-png.flaticon.com/512/2111/2111370.png"
@@ -350,60 +349,174 @@
         <ul>
           <li><code>.vs @usuario(s)</code> – Añade rol configurado</li>
           <li><code>.vsrm @usuario(s)</code> – Quita rol configurado</li>
-          <li><code>.vsrall</code> – Quita el rol a todos los que lo tengan</li>
-          <li><code>.nick @usuario nuevoNombre</code> – Cambia apodo con prefijo y sufijo</li>
-          <li><code>.avatar [@usuario]</code> – Muestra avatar</li>
-          <li><code>.banner [@usuario]</code> – Muestra banner (si tiene)</li>
-          <li><code>.ban @usuario [razón]</code> – Banea usuario</li>
-          <li><code>.kick @usuario [razón]</code> – Expulsa usuario</li>
-          <li><code>.timeout @usuario [duración]</code> – Silencia temporal</li>
-          <li><code>.purge [número | all]</code> – Borra mensajes</li>
+          <li><code>.ban @usuario</code> – Banea al usuario</li>
+          <li><code>.kick @usuario</code> – Expulsa al usuario</li>
+          <li><code>.timeout @usuario</code> – Mutea temporalmente</li>
+          <li><code>.avatar @usuario</code> – Muestra avatar</li>
+          <li><code>.banner @usuario</code> – Muestra banner</li>
+          <li><code>.purge número</code> – Borra mensajes</li>
         </ul>
-        <h3>Comandos Slash (/)</h3>
+        <h3>Comandos slash (/)</h3>
         <ul>
-          <li><code>/set-role-vs</code> – Configura rol para .vs</li>
-          <li><code>/set-nick</code> – Configura prefijo y sufijo</li>
-          <li><code>/serverinfo</code> – Información del servidor</li>
-          <li><code>/help</code> – Muestra esta lista</li>
+          <li><code>/help</code> – Muestra ayuda completa</li>
+          <li><code>/ranking</code> – Muestra ranking oficial</li>
+          <li><code>/ticket-panel</code> – Configura panel de tickets</li>
+          <li><code>/ticket-moderation</code> – Configura roles para tickets</li>
         </ul>
       </section>
 
       <section id="dashboard">
-        <h2>🛠 Dashboard</h2>
-        <p>
-          Aquí aparecerán los servidores donde tienes permisos de administrador.
-          <br />
-          (Funcionalidad pendiente de implementación)
-        </p>
+        <h2>🎮 Dashboard de Servidores</h2>
+        <p>Accede a tus servidores donde está StumbleHelper y gestiona opciones.</p>
+        <button id="login-btn" style="display:none;">Conectar con Discord</button>
+        <button id="logout-btn" style="display:none;">Cerrar sesión</button>
+        <div id="servers-list"></div>
       </section>
     </main>
   </div>
 
   <footer>
-    © 2025 StumbleHelper · Developed By Hugo
+    <p>© 2025 StumbleHelper. Todos los derechos reservados.</p>
   </footer>
 
   <script>
+    // Manejo básico de secciones
     function showSection(id, event) {
-      // Quitar active a todos los botones y secciones
-      document.querySelectorAll("nav button").forEach((btn) => btn.classList.remove("active"));
-      document.querySelectorAll("main section").forEach((sec) => {
-        sec.classList.remove("active");
-        sec.style.display = "none";
+      document.querySelectorAll("nav button").forEach((btn) =>
+        btn.classList.remove("active")
+      );
+      event.target.classList.add("active");
+
+      document.querySelectorAll("main section").forEach((section) => {
+        section.classList.remove("active");
       });
 
-      // Poner active en el botón clicado
-      if (event && event.currentTarget) event.currentTarget.classList.add("active");
+      document.getElementById(id).classList.add("active");
+    }
 
-      // Mostrar sección
-      const sec = document.getElementById(id);
-      if (sec) {
-        sec.style.display = "block";
-        // Forzar reflow para animar
-        void sec.offsetWidth;
-        sec.classList.add("active");
+    // OAuth2 con Discord para mostrar servidores en el dashboard
+    const clientId = "1387430571096936498";
+    const redirectUri = window.location.origin + window.location.pathname;
+    const scopes = ["identify", "guilds"].join(" ");
+
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const serversList = document.getElementById("servers-list");
+
+    // Extraer token del hash de URL
+    function getTokenFromUrl() {
+      const hash = window.location.hash;
+      if (!hash) return null;
+      const params = new URLSearchParams(hash.substring(1));
+      return params.get("access_token");
+    }
+
+    // Guardar token en sessionStorage
+    function saveToken(token) {
+      sessionStorage.setItem("discord_token", token);
+    }
+
+    // Obtener token guardado
+    function getSavedToken() {
+      return sessionStorage.getItem("discord_token");
+    }
+
+    // Borrar token guardado
+    function clearToken() {
+      sessionStorage.removeItem("discord_token");
+    }
+
+    // Redirigir a login OAuth2
+    function redirectToDiscordLogin() {
+      const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}&response_type=token&scope=${encodeURIComponent(scopes)}&prompt=consent`;
+      window.location.href = url;
+    }
+
+    // Mostrar servidores en el dashboard
+    async function fetchAndDisplayServers(token) {
+      try {
+        const res = await fetch("https://discord.com/api/users/@me/guilds", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("No autorizado");
+        const guilds = await res.json();
+        serversList.innerHTML = "";
+
+        if (guilds.length === 0) {
+          serversList.innerHTML = "<p>No tienes servidores con StumbleHelper.</p>";
+          return;
+        }
+
+        // Lista de servidores (solo nombre y icono)
+        const ul = document.createElement("ul");
+        ul.style.listStyle = "none";
+        ul.style.padding = "0";
+
+        guilds.forEach((guild) => {
+          const li = document.createElement("li");
+          li.style.marginBottom = "1rem";
+          li.style.display = "flex";
+          li.style.alignItems = "center";
+          li.style.gap = "1rem";
+
+          const iconUrl = guild.icon
+            ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=64`
+            : "https://cdn-icons-png.flaticon.com/512/187/187210.png";
+
+          li.innerHTML = `
+            <img src="${iconUrl}" alt="Icono ${guild.name}" width="48" height="48" style="border-radius:8px;" />
+            <span>${guild.name}</span>
+          `;
+          ul.appendChild(li);
+        });
+
+        serversList.appendChild(ul);
+      } catch (e) {
+        serversList.innerHTML =
+          "<p>Error al obtener servidores. Intenta iniciar sesión nuevamente.</p>";
       }
     }
+
+    // Al cargar la página
+    window.addEventListener("load", () => {
+      const tokenFromUrl = getTokenFromUrl();
+      if (tokenFromUrl) {
+        saveToken(tokenFromUrl);
+        // Limpia el hash para que no se vea el token en URL
+        history.replaceState(
+          "",
+          document.title,
+          window.location.pathname + window.location.search
+        );
+      }
+
+      const token = getSavedToken();
+
+      if (token) {
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        fetchAndDisplayServers(token);
+      } else {
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        serversList.innerHTML = "<p>Por favor, conecta tu cuenta para ver los servidores.</p>";
+      }
+    });
+
+    loginBtn.addEventListener("click", () => {
+      redirectToDiscordLogin();
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      clearToken();
+      loginBtn.style.display = "inline-block";
+      logoutBtn.style.display = "none";
+      serversList.innerHTML = "<p>Has cerrado sesión.</p>";
+    });
   </script>
 </body>
 </html>
