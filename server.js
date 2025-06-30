@@ -1,49 +1,38 @@
-// server.js
-require('dotenv').config();
 const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
+const fs = require('fs');
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 
-// Endpoint para OAuth2
-app.get('/api/oauth/callback', async (req, res) => {
-  const code = req.query.code;
-  if (!code) return res.status(400).send('No code provided');
+const TOKENS_FILE = './tokens.json';
 
+// Leer tokens existentes
+function readTokens() {
   try {
-    // 1. Intercambiar el código por el token
-    const params = new URLSearchParams();
-    params.append('client_id', process.env.CLIENT_ID);
-    params.append('client_secret', process.env.CLIENT_SECRET);
-    params.append('grant_type', 'authorization_code');
-    params.append('code', code);
-    params.append('redirect_uri', process.env.REDIRECT_URI);
-    params.append('scope', 'identify guilds');
-
-    const tokenResponse = await axios.post('https://discord.com/api/oauth2/token', params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
-
-    const { access_token, token_type } = tokenResponse.data;
-
-    // 2. Obtener la lista de servidores
-    const guildsResponse = await axios.get('https://discord.com/api/users/@me/guilds', {
-      headers: {
-        Authorization: `${token_type} ${access_token}`,
-      },
-    });
-
-    res.json(guildsResponse.data);
+    const data = fs.readFileSync(TOKENS_FILE, 'utf8');
+    return JSON.parse(data);
   } catch (err) {
-    console.error('OAuth Error:', err.response?.data || err.message);
-    res.status(500).send('OAuth2 failed');
+    return [];
   }
+}
+
+// Guardar tokens
+function saveToken(token) {
+  const tokens = readTokens();
+  tokens.push(token);
+  fs.writeFileSync(TOKENS_FILE, JSON.stringify(tokens, null, 2));
+}
+
+app.post('/save-token', (req, res) => {
+  const { token, userId } = req.body;
+  if (!token || !userId) {
+    return res.status(400).json({ error: 'Token y userId son obligatorios' });
+  }
+
+  saveToken({ userId, token, date: new Date().toISOString() });
+  res.json({ message: 'Token guardado' });
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Servidor backend en puerto ${PORT}`));
+app.listen(3000, () => {
+  console.log('Servidor iniciado en puerto 3000');
+});
