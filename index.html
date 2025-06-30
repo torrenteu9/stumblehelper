@@ -2,259 +2,291 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StumbleHelper - Dashboard</title>
+  <title>StumbleHelper - Tu Bot para Stumble Guys</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
   <style>
-    /* --- Estilos originales adaptados --- */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: "Rubik", sans-serif;
+      background: url("https://i.postimg.cc/Y92RZKjy/TETRISG.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #1f1f1f;
+      backdrop-filter: brightness(0.9);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
     body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #eee;
-      height: 100vh;
-      overflow-x: hidden;
+      flex: 1 0 auto;
+    }
+
+    #page-wrapper {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      max-width: 1000px;
+      width: 100%;
+      margin: auto;
+      padding: 0 1rem;
     }
 
     header {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 1rem 2rem;
       display: flex;
-      justify-content: flex-end;
-      padding: 20px 40px;
-      background-color: rgba(20, 20, 20, 0.85);
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+      justify-content: space-between;
+      align-items: center;
+      animation: slideDown 0.7s ease forwards;
+      border-radius: 10px;
+      margin-top: 1rem;
     }
 
-    button#dashboard-btn,
-    button#logout-btn {
-      background: linear-gradient(45deg, #6a11cb, #2575fc);
-      border: none;
-      color: white;
-      font-weight: 700;
-      padding: 10px 18px;
-      margin-left: 15px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      font-size: 14px;
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      animation: fadeInScale 1s ease forwards;
+    }
+
+    .logo-container img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 8px;
+      animation: rotateIn 1s ease forwards;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
       user-select: none;
+      letter-spacing: 1.2px;
+      animation: fadeInText 1.3s ease forwards;
     }
 
-    button#dashboard-btn:hover,
-    button#logout-btn:hover {
-      background: linear-gradient(45deg, #2575fc, #6a11cb);
+    nav {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    nav button {
+      background: #ffcc00;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      user-select: none;
+      font-size: 1rem;
+      box-shadow: 0 4px 8px rgb(255 204 0 / 0.4);
+      animation: fadeInButtons 1.5s ease forwards;
+    }
+
+    nav button:hover,
+    nav button.active {
+      background: #ffb800;
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgb(255 184 0 / 0.7);
+    }
+
+    /* Botón dashboard a la derecha */
+    #dashboard-btn {
+      background: #5865f2;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(88, 101, 242, 0.6);
+      transition: background 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      font-size: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    #dashboard-btn:hover {
+      background: #4752c4;
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(71, 82, 196, 0.8);
+    }
+    /* Animación especial para el dashboard */
+    #dashboard-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(255, 255, 255, 0.3) 100%
+      );
+      transform: skewX(-20deg);
+      transition: left 0.7s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+    #dashboard-btn:hover::before {
+      left: 100%;
     }
 
     main {
-      padding: 120px 40px 40px;
-      max-width: 900px;
-      margin: auto;
-      opacity: 0;
-      transform: translateY(30px);
-      animation: fadeSlideIn 0.8s forwards;
-      animation-delay: 0.4s;
-    }
-
-    h1 {
-      font-weight: 700;
-      font-size: 2.8rem;
-      margin-bottom: 8px;
-      color: #00d2ff;
-      text-shadow: 0 0 8px #00d2ffaa;
-      user-select: none;
-    }
-
-    #welcome-text {
-      margin-bottom: 40px;
-      font-size: 1.1rem;
-      color: #a0c8ffcc;
-      user-select: none;
-    }
-
-    #servers-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px;
-    }
-
-    .server-card {
-      background: rgba(255 255 255 / 0.1);
-      border-radius: 14px;
-      padding: 18px 20px;
-      width: 100%;
-      max-width: 280px;
-      box-shadow: 0 0 10px #00d2ff88;
-      backdrop-filter: blur(8px);
-      cursor: default;
-      user-select: none;
-      transition: transform 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .server-card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 20px #00d2ffcc;
-    }
-
-    .server-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 0 0 6px #00d2ffbb;
-      flex-shrink: 0;
-    }
-
-    .server-name {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #d0e7ff;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      margin-top: 2rem;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      animation: fadeInMain 1s ease forwards;
       flex-grow: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    /* Animación especial para abrir dashboard */
-    @keyframes fadeSlideIn {
-      0% {
+    section {
+      display: none;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    section.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-40px);
         opacity: 0;
-        transform: translateY(30px);
       }
-      100% {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes rotateIn {
+      from {
+        transform: rotate(-360deg);
+        opacity: 0;
+      }
+      to {
+        transform: rotate(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInText {
+      from {
+        opacity: 0;
+        letter-spacing: 4px;
+      }
+      to {
+        opacity: 1;
+        letter-spacing: 1.2px;
+      }
+    }
+
+    @keyframes fadeInButtons {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
-    /* Fondo animado suave detrás */
-    body::before {
-      content: "";
-      position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at center, #1f4068, #375a7f, #1f4068);
-      animation: backgroundPulse 12s ease-in-out infinite;
-      z-index: -1;
-      filter: brightness(0.6);
-    }
-
-    @keyframes backgroundPulse {
-      0%, 100% {
-        transform: scale(1);
-        filter: brightness(0.6);
+    @keyframes fadeInMain {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
       }
-      50% {
-        transform: scale(1.05);
-        filter: brightness(0.75);
-      }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <button id="dashboard-btn" aria-label="Dashboard">Dashboard</button>
-    <button id="logout-btn" aria-label="Logout">Logout</button>
-  </header>
-
-  <main>
-    <h1>Bienvenido, <span id="username">Usuario</span></h1>
-    <p id="welcome-text">Aquí están los servidores donde tienes permisos y nuestro bot está presente:</p>
-    <div id="servers-container">
-      <!-- Servidores se cargarán aquí -->
-    </div>
-  </main>
-
-  <script>
-    // Obtener parámetros URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const username = urlParams.get('user') || 'Usuario';
-
-    // Mostrar nombre usuario
-    document.getElementById('username').textContent = username;
-
-    // Botón Dashboard: sólo animación al hacer click
-    document.getElementById('dashboard-btn').addEventListener('click', () => {
-      // Reproduce la animación fadeSlideIn al volver a mostrar el contenido
-      const main = document.querySelector('main');
-      main.style.opacity = 0;
-      main.style.transform = 'translateY(30px)';
-      main.offsetHeight; // reflow
-      main.style.animation = 'fadeSlideIn 0.8s forwards';
-    });
-
-    // Botón Logout: redirige a página principal
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      window.location.href = '/'; // Cambia si tienes URL distinta para el logout
-    });
-
-    // Función para obtener guilds con el token guardado
-    async function fetchUserGuilds() {
-      try {
-        // Pedir servidores al backend
-        const res = await fetch('/api/user-guilds', { credentials: 'include' });
-        if (!res.ok) throw new Error('No autorizado o error al obtener guilds');
-        const guilds = await res.json();
-        return guilds;
-      } catch (e) {
-        console.error(e);
-        return [];
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
-    // Función para crear la card de cada servidor
-    function createServerCard(guild) {
-      const card = document.createElement('div');
-      card.className = 'server-card';
-
-      const icon = document.createElement('img');
-      icon.className = 'server-icon';
-
-      if (guild.icon) {
-        icon.src = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
-      } else {
-        icon.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
-      }
-      icon.alt = `${guild.name} icon`;
-
-      const name = document.createElement('div');
-      name.className = 'server-name';
-      name.textContent = guild.name;
-
-      card.appendChild(icon);
-      card.appendChild(name);
-      return card;
+    h2 {
+      margin-bottom: 1rem;
+      color: #f8b500;
+      font-size: 1.8rem;
     }
 
-    // Cargar y mostrar servidores
-    async function loadServers() {
-      const container = document.getElementById('servers-container');
-      container.innerHTML = '<p>Cargando servidores...</p>';
-
-      const guilds = await fetchUserGuilds();
-
-      if (!guilds.length) {
-        container.innerHTML = '<p>No se encontraron servidores donde el bot y tú estén presentes.</p>';
-        return;
-      }
-
-      container.innerHTML = '';
-      guilds.forEach(guild => {
-        const card = createServerCard(guild);
-        container.appendChild(card);
-      });
+    ul {
+      padding-left: 1.5rem;
     }
 
-    // Ejecutar carga al inicio
-    loadServers();
-  </script>
-</body>
-</html>
+    li {
+      margin-bottom: 0.7rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      user-select: none;
+      margin-top: auto;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
+      animation: fadeInMain 1.3s ease forwards;
+    }
+
+    .btn-invite {
+      margin-top: 2rem;
+      display: inline-flex;
+      align-items: center;
+      background: #5865f2;
+      color: white;
+      padding: 0.7rem 1.4rem;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: 0.3s;
+      box-shadow: 0 6px 12px rgb(88 101 242 / 0.6);
+      user-select: none;
+    }
+
+    .btn-invite img {
+      width: 20px;
+      height: 20px;
+      margin-right: 0.5rem;
+    }
+
+    .btn-invite:hover {
+      background: #4752c4;
+      box-shadow: 0 8px 16px rgb(71 82 196 / 0.8);
