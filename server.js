@@ -1,8 +1,12 @@
 import express from 'express';
-import fetch from 'node-fetch'; // O si usas Node 18+, fetch es global
+import fetch from 'node-fetch'; // O en Node 18+ puedes usar fetch globalmente
 
 const app = express();
 
+// Middleware para parsear JSON en body
+app.use(express.json());
+
+// Ruta original /callback (OAuth2 Authorization Code Flow)
 app.get('/callback', async (req, res) => {
   const code = req.query.code; // Aquí recibes el código que te envía Discord
 
@@ -47,7 +51,23 @@ app.get('/callback', async (req, res) => {
   }
 });
 
+// NUEVA RUTA para guardar token que manda frontend (Implicit Grant - token en hash)
+app.post('/save-token', (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: 'No token provided' });
+  }
+
+  // Aquí guardas el token en DB o donde quieras, o lo procesas
+  console.log('Token recibido desde frontend:', token);
+
+  // Respuesta simple
+  res.json({ success: true, message: 'Token recibido correctamente' });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
